@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense para saber los atributos posibles.
+    // Mantenga el puntero para ver las descripciones de los existentes atributos.
+    // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Archivo actual",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "xetra_etl_run",
+            "type": "python",
+            "python.pythonPath": "/home/vhcg77/.local/share/virtualenvs/xetra_project-HcHiHwZz",
+            "request": "launch",
+            "program": "/home/vhcg77/Documents/xetra_project/xetra_project/run.py",
+            "console": "integratedTerminal",
+            "args": [
+                "/home/vhcg77/Documents/xetra_project/xetra_project/configs/xetra_report1_config.yml"
+            ]
+        }
+    ]
+}
