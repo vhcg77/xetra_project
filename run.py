@@ -68,9 +68,8 @@ def main():
     )
 
     # running the ETL job for xetra report1
-    xetra_etl.run_report1()
+    xetra_etl.etl_report1()
     logger.info("Xetra ETL job finished.")
-    
 
 
 if __name__ == "__main__":

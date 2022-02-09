@@ -9,8 +9,8 @@ s3:
 
 # configuration specific to the source
 source:
-  src_first_extract_date: '2021-06-24'
-  src_columns: ['ISIN', 'Mnemonic', 'Date', 'Time', 'StartPrice', 'EndPrice', 'MinPrice', 'TradedVolume']
+  src_first_extract_date: '2022-02-06'
+  src_columns: ['ISIN', 'Mnemonic', 'Date', 'Time', 'StartPrice', 'EndPrice', 'MinPrice', 'MaxPrice', 'TradedVolume']
   src_col_date: 'Date'
   src_col_isin: 'ISIN'
   src_col_time: 'Time'
@@ -23,6 +23,7 @@ source:
 target: 
   trg_key: 'report1/xetra_daily_report1_'
   trg_key_date_format: '%Y%m%d_%H%M%S'
+  trg_format: 'parquet'
   trg_col_isin: 'isin'
   trg_col_date: 'date'
   trg_col_op_price: 'opening_price_eur'

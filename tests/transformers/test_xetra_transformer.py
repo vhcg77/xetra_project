@@ -29,6 +29,7 @@ class TestXetraETLMethods(unittest.TestCase):
         # mocking s3 connection start
         self.mock_s3 = mock_s3()
         self.mock_s3.start()
+
         # Defining the class arguments
         self.s3_access_key = "AWS_ACCESS_KEY_ID"
         self.s3_secret_key = "AWS_SECRET_ACCESS_KEY"
@@ -36,9 +37,11 @@ class TestXetraETLMethods(unittest.TestCase):
         self.s3_bucket_name_src = "src-bucket"
         self.s3_bucket_name_trg = "trg-bucket"
         self.meta_key = "meta_key"
+
         # Creating s3 access keys as environment variables
         os.environ[self.s3_access_key] = "KEY1"
         os.environ[self.s3_secret_key] = "KEY2"
+
         # Creating the source and target bucket on the mocked s3
         self.s3 = boto3.resource(service_name="s3", endpoint_url=self.s3_endpoint_url)
         self.s3.create_bucket(
@@ -51,6 +54,7 @@ class TestXetraETLMethods(unittest.TestCase):
         )
         self.src_bucket = self.s3.Bucket(self.s3_bucket_name_src)
         self.trg_bucket = self.s3.Bucket(self.s3_bucket_name_trg)
+
         # Creating S3BucketConnector testing instances
         self.s3_bucket_src = S3BucketConnector(
             self.s3_access_key,
@@ -64,6 +68,7 @@ class TestXetraETLMethods(unittest.TestCase):
             self.s3_endpoint_url,
             self.s3_bucket_name_trg,
         )
+
         # Creating source and target configuration
         conf_dict_src = {
             "src_first_extract_date": "2021-04-01",
@@ -101,6 +106,7 @@ class TestXetraETLMethods(unittest.TestCase):
         }
         self.source_config = XetraSourceConfig(**conf_dict_src)
         self.target_config = XetraTargetConfig(**conf_dict_trg)
+
         # Creating source files on mocked s3
         columns_src = [
             "ISIN",
@@ -260,6 +266,7 @@ class TestXetraETLMethods(unittest.TestCase):
         self.df_report = pd.DataFrame(data_report, columns=columns_report)
 
     def tearDown(self):
+
         # mocking s3 connection stop
         self.mock_s3.stop()
 
@@ -268,9 +275,11 @@ class TestXetraETLMethods(unittest.TestCase):
         Tests the extract method when
         there are no files to be extracted
         """
+
         # Test init
         extract_date = "2200-01-02"
         extract_date_list = []
+
         # Method execution
         with patch.object(
             MetaProcess,
@@ -285,6 +294,7 @@ class TestXetraETLMethods(unittest.TestCase):
                 self.target_config,
             )
             df_return = xetra_etl.extract()
+
         # Test after method execution
         self.assertTrue(df_return.empty)
 
@@ -293,8 +303,10 @@ class TestXetraETLMethods(unittest.TestCase):
         Tests the extract method when
         there are files to be extracted
         """
+
         # Expected results
         df_exp = self.df_src.loc[1:8].reset_index(drop=True)
+
         # Test init
         extract_date = "2021-04-17"
         extract_date_list = [
@@ -304,6 +316,7 @@ class TestXetraETLMethods(unittest.TestCase):
             "2021-04-19",
             "2021-04-20",
         ]
+
         # Method execution
         with patch.object(
             MetaProcess,
@@ -318,6 +331,7 @@ class TestXetraETLMethods(unittest.TestCase):
                 self.target_config,
             )
             df_result = xetra_etl.extract()
+
         # Test after method execution
         self.assertTrue(df_exp.equals(df_result))
 
@@ -347,8 +361,10 @@ class TestXetraETLMethods(unittest.TestCase):
             )
             with self.assertLogs() as logm:
                 df_result = xetra_etl.transform_report1(df_input)
+
                 # Log test after method execution
                 self.assertIn(log_exp, logm.output[0])
+
         # Test after method execution
         self.assertTrue(df_result.empty)
 
@@ -367,6 +383,7 @@ class TestXetraETLMethods(unittest.TestCase):
         extract_date = "2021-04-17"
         extract_date_list = ["2021-04-16", "2021-04-17", "2021-04-18", "2021-04-19"]
         df_input = self.df_src.loc[1:8].reset_index(drop=True)
+
         # Method execution
         with patch.object(
             MetaProcess,
@@ -382,9 +399,11 @@ class TestXetraETLMethods(unittest.TestCase):
             )
             with self.assertLogs() as logm:
                 df_result = xetra_etl.transform_report1(df_input)
+
                 # Log test after method execution
                 self.assertIn(log1_exp, logm.output[0])
                 self.assertIn(log2_exp, logm.output[1])
+
         # Test after method execution
         self.assertTrue(df_exp.equals(df_result))
 
@@ -392,15 +411,18 @@ class TestXetraETLMethods(unittest.TestCase):
         """
         Tests the load method
         """
+
         # Expected results
         log1_exp = "Xetra target data successfully written."
         log2_exp = "Xetra meta file successfully updated."
         df_exp = self.df_report
         meta_exp = ["2021-04-17", "2021-04-18", "2021-04-19"]
+
         # Test init
         extract_date = "2021-04-17"
         extract_date_list = ["2021-04-16", "2021-04-17", "2021-04-18", "2021-04-19"]
         df_input = self.df_report
+
         # Method execution
         with patch.object(
             MetaProcess,
@@ -416,9 +438,11 @@ class TestXetraETLMethods(unittest.TestCase):
             )
             with self.assertLogs() as logm:
                 xetra_etl.load(df_input)
+
                 # Log test after method execution
                 self.assertIn(log1_exp, logm.output[1])
                 self.assertIn(log2_exp, logm.output[4])
+
         # Test after method execution
         trg_file = self.s3_bucket_trg.list_files_in_prefix(self.target_config.trg_key)[
             0
@@ -430,6 +454,7 @@ class TestXetraETLMethods(unittest.TestCase):
         meta_file = self.s3_bucket_trg.list_files_in_prefix(self.meta_key)[0]
         df_meta_result = self.s3_bucket_trg.read_csv_to_df(meta_file)
         self.assertEqual(list(df_meta_result["source_date"]), meta_exp)
+
         # Cleanup after test
         self.trg_bucket.delete_objects(
             Delete={"Objects": [{"Key": trg_file}, {"Key": trg_file}]}
@@ -439,12 +464,15 @@ class TestXetraETLMethods(unittest.TestCase):
         """
         Tests the etl_report1 method
         """
+
         # Expected results
         df_exp = self.df_report
         meta_exp = ["2021-04-17", "2021-04-18", "2021-04-19"]
+
         # Test init
         extract_date = "2021-04-17"
         extract_date_list = ["2021-04-16", "2021-04-17", "2021-04-18", "2021-04-19"]
+
         # Method execution
         with patch.object(
             MetaProcess,
@@ -459,6 +487,7 @@ class TestXetraETLMethods(unittest.TestCase):
                 self.target_config,
             )
             xetra_etl.etl_report1()
+
         # Test after method execution
         trg_file = self.s3_bucket_trg.list_files_in_prefix(self.target_config.trg_key)[
             0
@@ -470,6 +499,7 @@ class TestXetraETLMethods(unittest.TestCase):
         meta_file = self.s3_bucket_trg.list_files_in_prefix(self.meta_key)[0]
         df_meta_result = self.s3_bucket_trg.read_csv_to_df(meta_file)
         self.assertEqual(list(df_meta_result["source_date"]), meta_exp)
+
         # Cleanup after test
         self.trg_bucket.delete_objects(
             Delete={"Objects": [{"Key": trg_file}, {"Key": trg_file}]}

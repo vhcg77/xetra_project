@@ -8,7 +8,7 @@ pandas = "*"
 boto3 = "*"
 pyarrow = "*"
 pyyaml = "*"
-
+line-profiler = "*"
 
 [dev-packages]
 awscli = "*"
@@ -17,6 +17,8 @@ pylint = "*"
 moto = "*"
 black = "*"
 coverage = "*"
+memory-profiler = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.9"
